@@ -220,12 +220,12 @@ export function saveToLocalStorage(): void {
 
 export function splitWallIfIntersecting(newWall: IWall): IWall[] {
     const result: IWall[] = [newWall];
-    const wallsToProcess = [...state.walls];
     const wallsToRemove: number[] = [];
     const wallsToAdd: IWall[] = [];
 
-    for (let i = 0; i < wallsToProcess.length; i++) {
-        const existingWall = wallsToProcess[i];
+    // Najpierw znajdź wszystkie przecięcia i zbierz zmiany
+    for (let i = 0; i < state.walls.length; i++) {
+        const existingWall = state.walls[i];
         const intersection = findLineIntersection(
             newWall.x1, newWall.y1, newWall.x2, newWall.y2,
             existingWall.x1, existingWall.y1, existingWall.x2, existingWall.y2
@@ -285,19 +285,14 @@ export function splitWallIfIntersecting(newWall: IWall): IWall[] {
         }
     }
 
-    // Usuń stare ściany (od końca, żeby nie zmienić indeksów)
+    // Aplikuj zmiany - najpierw usuń stare ściany (od końca, żeby nie zmienić indeksów)
     wallsToRemove.sort((a, b) => b - a).forEach(index => {
         state.walls.splice(index, 1);
     });
 
-    // Dodaj nowe ściany
+    // Potem dodaj nowe ściany
     wallsToAdd.forEach(wall => {
-        if (!state.walls.some(existing => 
-            Math.abs(existing.x1 - wall.x1) < 0.1 && Math.abs(existing.y1 - wall.y1) < 0.1 &&
-            Math.abs(existing.x2 - wall.x2) < 0.1 && Math.abs(existing.y2 - wall.y2) < 0.1
-        )) {
-            state.walls.push(wall);
-        }
+        state.walls.push(wall);
     });
 
     return result;
