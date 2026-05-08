@@ -5,7 +5,7 @@
 import type {
     IAppState, IWall, ICamera, IZone, IPoint,
     ISelectedObject, IProjectState, ICoverageResult, IMousePos,
-    AppMode,
+    AppMode, ICable,
 } from './types';
 import { DEFAULT_CAMERAS } from './cameras';
 
@@ -140,7 +140,10 @@ export function saveState(): void {
         cameras: JSON.parse(JSON.stringify(state.placedCameras)),
         zones:   JSON.parse(JSON.stringify(state.zones)),
         cables:  JSON.parse(JSON.stringify(state.cables)),
-        backgrounds: JSON.parse(JSON.stringify(backgroundsMetadata))
+        backgrounds: JSON.parse(JSON.stringify(backgroundsMetadata)),
+        scale: state.scale,
+        offsetX: state.offsetX,
+        offsetY: state.offsetY
     });
     state.redoHistory = [];
     if (state.history.length > MAX_HISTORY) state.history.shift();
@@ -185,6 +188,18 @@ export function redo(): void {
 }
 
 function saveToHistory() { /* helper for standard cloning logic */ }
+
+function saveToRedo(): void {
+    state.redoHistory.push({
+        walls: [...state.walls],
+        cameras: state.placedCameras.map(c => ({ ...c, dori: [...c.dori] })),
+        zones: [...state.zones],
+        cables: [...state.cables],
+        scale: state.scale,
+        offsetX: state.offsetX,
+        offsetY: state.offsetY,
+    });
+}
 
 // --- PERSISTENCE ---
 

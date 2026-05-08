@@ -101,6 +101,9 @@ export interface IProjectState {
     zones: IZone[];
     backgrounds?: IBackground[];
     cables?: ICable[]; // Dodajemy kable jako opcjonalne dla wstecznej kompatybilności
+    scale: number;
+    offsetX: number;
+    offsetY: number;
 }
 
 export interface ICoverageResult {
