@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>NoNinjaTV</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script type="module" crossorigin src="/assets/index-CAzlWLJ8.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-Dw1bW1of.css">
+</head>
+<body>
+    <div class="ribbon-app-header">
+        <div class="logo">NoNinjaTV <span>Pro</span></div>
+        <div class="ribbon-tabs">
+            <button class="ribbon-tab active">Główne Narzędzia</button>
+            <button class="ribbon-tab">Widok i Raporty (Wkrótce)</button>
+        </div>
+    </div>
+
+    <div class="ribbon-panel">
+        <div class="ribbon-group">
+            <div class="ribbon-items">
+                <button class="ribbon-btn-large" id="btn-undo">
+                    <span class="ribbon-icon">↩️</span>
+                    <span class="ribbon-label">Cofnij</span>
+                </button>
+                <button class="ribbon-btn-large" id="btn-redo">
+                    <span class="ribbon-icon">↪️</span>
+                    <span class="ribbon-label">Ponów</span>
+                </button>
+                <div class="ribbon-subitems">
+                    <button class="ribbon-btn-small btn-danger" id="btn-new-project">🗑️ Wyczyść Projekt</button>
+                </div>
+            </div>
+            <div class="ribbon-group-title">Historia</div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-items">
+                <button class="ribbon-btn-large" id="btn-draw">
+                    <span class="ribbon-icon">🧱</span>
+                    <span class="ribbon-label">Ściana</span>
+                </button>
+                <div class="ribbon-subitems">
+                    <select id="wall-type-select" class="ribbon-select">
+                        <option value="wall">Zwykła (Beton)</option>
+                        <option value="door">Drzwi</option>
+                        <option value="window">Okno</option>
+                    </select>
+                </div>
+            </div>
+            <div class="ribbon-group-title">Konstrukcja</div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-items">
+                <div class="ribbon-subitems">
+                    <button class="ribbon-btn-small" id="bg-upload-trigger">➕ Wgraj Tło</button>
+                    <button class="ribbon-btn-small btn-danger" id="btn-bg-delete">🗑️ Usuń Zaznaczone</button>
+                </div>
+
+                <div class="ribbon-subitems">
+                    <button class="ribbon-btn-small" id="btn-bg-edit">📐 Tryb Edycji Tła</button>
+                    <button class="ribbon-btn-small" id="btn-calibrate" style="display: none;">📏 Kalibruj Skalę</button>
+                </div>
+
+                <div class="ribbon-subitems" style="width: 140px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <label style="font-size: 10px; color: #94a3b8;">Krycie:</label>
+                        <span id="bg-opacity-val" style="font-size: 10px; color: #3b82f6; font-weight: bold;">50%</span>
+                    </div>
+                    <input type="range" id="bg-opacity" min="0" max="100" value="50" style="width: 100%;">
+                </div>
+
+                <input type="file" id="bg-upload" accept="image/png, image/jpeg, image/webp" style="display: none;">
+            </div>
+            <div class="ribbon-group-title">Podkład Mapowy (Multi)</div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-items">
+                <button class="ribbon-btn-large" id="btn-draw-obstacle">
+                    <span class="ribbon-icon">📦</span>
+                    <span class="ribbon-label">Przeszkoda</span>
+                </button>
+                <button class="ribbon-btn-large" id="btn-draw-zone">
+                    <span class="ribbon-icon">🎯</span>
+                    <span class="ribbon-label">Strefa AI</span>
+                </button>
+                <div class="ribbon-subitems">
+                    <select id="zone-type-select" class="ribbon-select">
+                        <option value="poi_high">Priorytet</option>
+                        <option value="poi_med">Ważna</option>
+                        <option value="poi_none">Wykluczona</option>
+                    </select>
+                </div>
+            </div>
+            <div class="ribbon-group-title">Logika Przestrzeni</div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-items">
+                <button class="ribbon-btn-large" id="btn-simulate">
+                    <span class="ribbon-icon">🎥</span>
+                    <span class="ribbon-label">Kamera</span>
+                </button>
+                <div class="ribbon-subitems">
+                    <select id="camera-select" class="ribbon-select"></select>
+                    <button class="ribbon-btn-small" id="btn-camera-manager">⚙️ Magazyn Kamer</button>
+                </div>
+                <div class="ribbon-subitems">
+                    <button class="ribbon-btn-small btn-ai" id="btn-optimize">✨ Optymalizuj</button>
+                </div>
+            </div>
+            <div class="ribbon-group-title">Monitoring</div>
+        </div>
+
+        <div class="ribbon-group">
+            <div class="ribbon-items">
+                <button class="ribbon-btn-large" id="btn-erase">
+                    <span class="ribbon-icon">🧽</span>
+                    <span class="ribbon-label">Usuń</span>
+                </button>
+                <button class="ribbon-btn-large" id="btn-toggle-tree">
+                    <span class="ribbon-icon">🌳</span>
+                    <span class="ribbon-label">Drzewko</span>
+                </button>
+            </div>
+            <div class="ribbon-group-title">Narzędzia</div>
+        </div>
+    </div>
+
+    <main class="workspace" id="workspace">
+        <canvas id="mapCanvas"></canvas>
+
+        <div id="status-bar" class="status-bar" style="display: none;">
+            <span>Dystans: <span id="val-length">0.00</span> m</span>
+            <span> | Kąt: <span id="val-angle">0</span>°</span>
+            <span> | Wymiar: <input type="number" id="input-length" step="0.1"> m</span>
+        </div>
+        <aside class="sidebar right-sidebar closed" id="project-sidebar">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="margin: 0;">Drzewko Projektu</h3>
+                <button id="btn-sidebar-close" style="background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 16px;">✖</button>
+            </div>
+            <div class="tree-container" id="project-tree">
+            </div>
+        </aside>
+        <div id="camera-modal" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Magazyn Kamer CCTV</h2>
+                    <button class="modal-close">✖</button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="camera-list-section">
+                        <h3>Dostępne Modele</h3>
+                        <div id="camera-database-list" class="db-list"></div>
+                    </div>
+
+                    <div class="camera-add-section">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; margin-bottom: 15px;">
+                            <h3 id="form-title" style="border: none; margin: 0; padding: 0;">Dodaj Własną Kamerę</h3>
+                            <button id="btn-cancel-edit" style="display: none; background: none; border: none; color: #ef4444; cursor: pointer; font-size: 11px;">✖ Anuluj edycję</button>
+                        </div>
+
+                        <div class="form-grid">
+                            <label>Nazwa Modelu:</label>
+                            <input type="text" id="new-cam-name" placeholder="np. Hikvision 8MP 2.8mm">
+
+                            <label>Kąt Widzenia (FOV °):</label>
+                            <input type="number" id="new-cam-fov" placeholder="np. 102">
+
+                            <label>Zasięg max (m):</label>
+                            <input type="number" id="new-cam-range" placeholder="np. 30">
+
+                            <label>DORI - Identyfikacja (m):</label>
+                            <input type="number" id="new-cam-dori-i" placeholder="np. 4">
+
+                            <label>DORI - Rozpoznanie (m):</label>
+                            <input type="number" id="new-cam-dori-r" placeholder="np. 8">
+
+                            <label>DORI - Obserwacja (m):</label>
+                            <input type="number" id="new-cam-dori-o" placeholder="np. 15">
+
+                            <label>Typ montażu:</label>
+                            <select id="new-cam-type">
+                                <option value="wall">Ścienna (Tuba/Kompakt)</option>
+                                <option value="ceiling">Sufitowa (Kopułka/Fisheye)</option>
+                            </select>
+                        </div>
+                        <button id="btn-save-cam" class="btn-success">➕ Zapisz Model do Bazy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Vite entry point — zastępuje 7 poprzednich tagów <script defer src="..."> -->
+</body>
+</html>

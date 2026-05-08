@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "Bash(rm -f api.js cameras.js fizyka.js rysowanie.js algo_brute.js algo_heuristic.js eventy.js)",
+      "Bash(ls -la *.js *.ts)"
+    ]
+  }
+}

@@ -1,0 +1,1 @@
+{"root":["./src/algo_brute.ts","./src/algo_heuristic.ts","./src/api.ts","./src/app.ts","./src/cameras.ts","./src/render.ts","./src/state.ts","./src/types.ts"],"version":"5.9.3"}

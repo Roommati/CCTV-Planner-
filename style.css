@@ -1,0 +1,495 @@
+:root {
+    --bg-dark: #0f172a;
+    --bg-panel: #1e293b;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --accent-blue: #3b82f6;
+    --accent-hover: #2563eb;
+    --border-color: #334155;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+
+body {
+    display: flex;
+    flex-direction: column; /* Główna oś to teraz góra-dół (Top bar -> Reszta) */
+    height: 100vh;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    overflow: hidden;
+}
+
+/* --- GÓRNY PASEK --- */
+.top-bar {
+    height: 60px;
+    background-color: var(--bg-panel);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 20;
+}
+
+.logo { font-size: 18px; font-weight: 600; color: var(--accent-blue); }
+.logo span { color: var(--text-main); }
+
+.workflow-tabs { display: flex; gap: 5px; height: 100%; }
+
+.tab-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 0 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    height: 100%;
+}
+
+.tab-btn:hover { color: var(--text-main); background-color: rgba(255,255,255,0.05); }
+.tab-btn.active {
+    color: var(--accent-blue);
+    border-bottom: 3px solid var(--accent-blue);
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+.btn-danger {
+    background-color: transparent; color: #ef4444; border: 1px solid #ef4444;
+    padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;
+}
+.btn-danger:hover { background-color: rgba(239, 68, 68, 0.1); }
+
+/* --- GŁÓWNY KONTENER (Paski + Canvas) --- */
+.main-container {
+    display: flex;
+    flex-grow: 1;
+    height: calc(100vh - 60px);
+}
+
+.sidebar {
+    width: 260px;
+    background-color: var(--bg-panel);
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    z-index: 10;
+}
+
+.left-sidebar { border-right: 1px solid var(--border-color); }
+.right-sidebar { border-left: 1px solid var(--border-color); }
+
+.tool-group h3, .right-sidebar h3 {
+    font-size: 12px; text-transform: uppercase; color: var(--text-muted);
+    letter-spacing: 1px; margin-bottom: 15px;
+}
+
+/* --- PRZYCISKI I NARZĘDZIA --- */
+/* Naprawa przycisków bocznych - klasyczny, czysty wygląd */
+.tool-btn {
+    width: 100%;
+    padding: 10px 15px;
+    margin-bottom: 5px;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-main);
+    text-align: left;
+    cursor: pointer;
+    font-size: 13px;
+    display: block;
+    transition: background 0.2s;
+}
+
+.tool-btn.active {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+    color: white;
+}
+
+/* Nowy Toolbar (Ribbon) */
+/* --- APP HEADER (LOGO I ZAKŁADKI) --- */
+.ribbon-app-header {
+    height: 40px;
+    background-color: #0f172a;
+    display: flex;
+    align-items: flex-end;
+    padding: 0 20px;
+    border-bottom: 1px solid #1e293b;
+}
+
+.logo { font-size: 16px; font-weight: 700; color: #3b82f6; margin-right: 30px; margin-bottom: 8px; }
+.logo span { color: #f8fafc; }
+
+.ribbon-tabs { display: flex; gap: 5px; height: 32px; }
+.ribbon-tab {
+    background: transparent; border: none; color: #94a3b8; padding: 0 15px;
+    font-size: 12px; font-weight: 500; cursor: pointer;
+    border-top-left-radius: 6px; border-top-right-radius: 6px;
+    border: 1px solid transparent; border-bottom: none;
+}
+.ribbon-tab:hover { background: #1e293b; color: #f8fafc; }
+.ribbon-tab.active { background: #1e293b; color: #3b82f6; border-color: #334155; }
+
+/* --- GŁÓWNA WSTĄŻKA (RIBBON PANEL) --- */
+.ribbon-panel {
+    display: flex;
+    height: 95px; /* Sztywna wysokość panelu narzędzi */
+    background: #1e293b;
+    border-bottom: 1px solid #334155;
+    padding: 5px 10px;
+    gap: 10px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    z-index: 100;
+}
+
+.ribbon-group {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-right: 1px solid #334155;
+    padding-right: 10px;
+}
+
+.ribbon-items {
+    display: flex; gap: 5px; height: 100%; align-items: flex-start;
+}
+
+/* Duży Kafelkowy Przycisk */
+.ribbon-btn-large {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: transparent; border: 1px solid transparent; color: #f8fafc;
+    border-radius: 4px; cursor: pointer; min-width: 65px; height: 65px;
+    transition: all 0.15s ease;
+}
+.ribbon-btn-large:hover { background: #334155; border-color: #475569; }
+.ribbon-btn-large.active { background: rgba(59, 130, 246, 0.2); border-color: #3b82f6; color: #60a5fa; }
+
+.ribbon-icon { font-size: 24px; margin-bottom: 4px; }
+.ribbon-label { font-size: 11px; font-weight: 500; }
+
+/* Małe przyciski i listy po prawej stronie grupy */
+.ribbon-subitems {
+    display: flex; flex-direction: column; gap: 5px; justify-content: center; height: 65px;
+}
+.ribbon-select {
+    background: #0f172a; border: 1px solid #334155; color: #cbd5e1;
+    padding: 4px 8px; font-size: 11px; border-radius: 4px; outline: none; width: 120px;
+}
+.ribbon-btn-small {
+    background: #0f172a; border: 1px solid #334155; color: #cbd5e1;
+    padding: 4px 8px; font-size: 11px; border-radius: 4px; cursor: pointer; text-align: left;
+}
+.ribbon-btn-small:hover { background: #334155; }
+.btn-ai { color: #10b981; border-color: rgba(16, 185, 129, 0.3); font-weight: 600; }
+.btn-danger { color: #ef4444; border-color: rgba(239, 68, 68, 0.3); }
+
+.ribbon-group-title {
+    font-size: 10px; text-align: center; color: #64748b; font-weight: 700;
+    text-transform: uppercase; margin-bottom: 2px;
+}
+
+/* --- OBSZAR ROBOCZY --- */
+.workspace {
+    position: relative;
+    width: 100%;
+    /* Obliczamy wysokość okna MINUS header (40px) i MINUS ribbon (95px) = 135px */
+    height: calc(100vh - 135px); 
+    background-color: var(--bg-dark);
+}
+
+#mapCanvas {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block;
+}
+
+select.tool-btn {
+    background-color: #1e293b; color: #cbd5e1; padding-left: 10px; appearance: auto;
+}
+
+.btn-ai { border-color: #10b981; color: #10b981; font-weight: bold; margin-top: 10px; text-align: center; justify-content: center;}
+
+.info-text, .info-box {
+    font-size: 13px; color: var(--text-muted); padding: 12px;
+    background: rgba(0,0,0,0.2); border-radius: 6px; line-height: 1.5;
+}
+
+.checkbox-label {
+    cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); margin-top: 10px;
+}
+
+.coverage-box {
+    margin-top: 25px; padding: 15px; background: rgba(16, 185, 129, 0.1); 
+    border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.3); text-align: center;
+}
+.coverage-val { font-size: 32px; font-weight: bold; color: #10b981; }
+.coverage-percent { color: #10b981; font-weight: bold; font-size: 20px; }
+
+/* --- PŁÓTNO (CANVAS) --- */
+.workspace {
+    flex-grow: 1; position: relative; background-color: var(--bg-dark);
+    display: flex; justify-content: center; align-items: center;
+}
+
+canvas {
+    background-color: transparent; cursor: crosshair; display: block;
+    width: 100%; height: 100%; border: none;
+}
+
+.status-bar {
+    position: absolute; bottom: 30px; background-color: var(--bg-panel);
+    border: 1px solid var(--accent-blue); padding: 10px 20px; border-radius: 8px;
+    color: var(--text-main); font-family: monospace; font-size: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5); pointer-events: auto;
+    display: flex; align-items: center; gap: 10px;
+}
+
+.status-bar input {
+    width: 70px; background-color: var(--bg-dark); border: 1px solid var(--border-color);
+    color: var(--text-main); padding: 4px; border-radius: 4px; font-family: monospace; outline: none;
+}
+.status-bar input:focus { border-color: var(--accent-blue); }
+
+/* --- POPRAWKA BIAŁEGO TŁA W LISTACH ROZWIJANYCH --- */
+select.tool-btn option {
+    background-color: var(--bg-panel);
+    color: var(--text-main);
+}
+
+/* --- PŁYWAJĄCY ZNAK ZAPYTANIA (INSTRUKCJA) --- */
+.help-widget {
+    position: absolute;
+    bottom: 30px;
+    left: 30px;
+    z-index: 50;
+}
+
+.help-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+.help-btn:hover {
+    color: var(--text-main);
+    border-color: var(--accent-blue);
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+/* Wyskakujące okienko instrukcji */
+.help-popup {
+    position: absolute;
+    bottom: 50px;
+    left: 0;
+    width: 220px;
+    background-color: var(--bg-panel);
+    border: 1px solid var(--accent-blue);
+    border-radius: 8px;
+    padding: 15px;
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    
+    /* Ukryte domyślnie, pokazuje się na hover */
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease-in-out;
+    transform: translateY(10px);
+    pointer-events: none;
+}
+
+.help-widget:hover .help-popup {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.help-popup strong {
+    color: var(--text-main);
+}
+
+/* --- WYSUWANE DRZEWKO PROJEKTU --- */
+.right-sidebar {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 320px;
+    height: 100%;
+    background: rgba(30, 41, 59, 0.95);
+    border-left: 1px solid var(--border-color);
+    backdrop-filter: blur(5px);
+    z-index: 200;
+    transform: translateX(0); /* Otwarty */
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: -5px 0 15px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+}
+
+.right-sidebar.closed {
+    transform: translateX(100%); /* Ukryty poza ekranem */
+}
+
+.tree-container {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.tree-item {
+    background: #0f172a;
+    border: 1px solid #334155;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    font-size: 12px;
+}
+
+.tree-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    color: #38bdf8;
+    font-weight: 600;
+}
+
+.tree-select {
+    width: 100%;
+    background: #1e293b;
+    color: white;
+    border: 1px solid #475569;
+    padding: 4px;
+    border-radius: 4px;
+    font-size: 11px;
+}
+/* --- EDYTOWALNE NAZWY KAMER --- */
+.tree-name-input {
+    background: transparent;
+    border: 1px solid transparent;
+    color: #38bdf8;
+    font-weight: 600;
+    font-size: 12px;
+    width: 100%;
+    outline: none;
+    padding: 2px 4px;
+    border-radius: 2px;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.tree-name-input:hover, .tree-name-input:focus {
+    background: #1e293b;
+    border-bottom: 1px solid #3b82f6;
+}
+
+/* --- WYBÓR W DRZEWKU --- */
+.tree-item {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+}
+.tree-item:hover { border-color: #475569; background: #1e293b; }
+
+/* Podświetlenie gdy kamera jest wybrana */
+.tree-item.active-item {
+    border-left: 3px solid #3b82f6;
+    background-color: rgba(59, 130, 246, 0.1);
+    box-shadow: inset 5px 0 10px -5px #3b82f6;
+}
+
+
+/* --- MODAL BAZY KAMER --- */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(4px);
+    z-index: 1000; display: flex; justify-content: center; align-items: center;
+}
+
+.modal-content {
+    background: #1e293b; width: 800px; max-width: 95%; border-radius: 8px;
+    border: 1px solid #334155; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    display: flex; flex-direction: column; overflow: hidden;
+}
+
+.modal-header {
+    padding: 15px 20px; background: #0f172a; border-bottom: 1px solid #334155;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.modal-header h2 { font-size: 16px; color: #f8fafc; margin: 0; }
+.modal-close { background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 18px; }
+.modal-close:hover { color: #ef4444; }
+
+.modal-body {
+    display: flex; padding: 20px; gap: 20px; max-height: 70vh; overflow-y: auto;
+}
+
+.camera-list-section, .camera-add-section { flex: 1; display: flex; flex-direction: column; }
+.camera-list-section h3, .camera-add-section h3 { font-size: 14px; color: #38bdf8; margin-bottom: 15px; border-bottom: 1px solid #334155; padding-bottom: 5px; }
+
+.db-list { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; padding-right: 5px; }
+.db-list-item { 
+    background: #0f172a; padding: 10px; border-radius: 6px; border: 1px solid #334155;
+    display: flex; justify-content: space-between; align-items: center; font-size: 13px;
+}
+
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+.form-grid label { font-size: 11px; color: #94a3b8; align-self: center; }
+.form-grid input, .form-grid select {
+    background: #0f172a; border: 1px solid #334155; color: #f8fafc; padding: 8px;
+    border-radius: 4px; font-size: 12px; outline: none; width: 100%;
+}
+.form-grid input:focus { border-color: #3b82f6; }
+
+.btn-success {
+    background: #10b981; color: #fff; border: none; padding: 10px; border-radius: 6px;
+    font-weight: bold; cursor: pointer; text-align: center; font-size: 13px;
+}
+.btn-success:hover { background: #059669; }
+
+.btn-delete-small {
+    background: transparent; color: #ef4444; border: 1px solid #ef4444;
+    padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;
+}
+.btn-delete-small:hover { background: rgba(239, 68, 68, 0.2); }
+
+/* --- PRZYCISK GWIAZDKI (ULUBIONE) --- */
+.btn-star {
+    background: none; border: none; cursor: pointer; font-size: 18px;
+    color: #64748b; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0; outline: none; display: flex; align-items: center; justify-content: center;
+}
+.btn-star:hover {
+    color: #f59e0b; transform: scale(1.2);
+}
+.btn-star.active {
+    color: #f59e0b; text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+}
+
+/* --- PRZYCISKI EDYCJI --- */
+.btn-edit-small {
+    background: transparent; color: #3b82f6; border: 1px solid #3b82f6;
+    padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;
+}
+.btn-edit-small:hover { background: rgba(59, 130, 246, 0.2); }
+
+.btn-update-mode {
+    background: #3b82f6; /* Zmienia kolor na niebieski podczas edycji */
+}
+.btn-update-mode:hover { background: #2563eb; }
+
+/* Styl dla grubych ścian CAD */
+.wall-preview-bold { filter: drop-shadow(0 0 2px rgba(0,0,0,0.5)); }
