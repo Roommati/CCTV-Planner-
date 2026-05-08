@@ -696,14 +696,20 @@ canvas.addEventListener('mousedown', (e: MouseEvent) => {
                 const wallType = selectWallType?.value ?? 'wall';
                 const newWall: IWall = { x1: state.startPoint!.x, y1: state.startPoint!.y, x2: pos.x, y2: pos.y, type: wallType as IWall['type'] };
                 
+                console.log('DEBUG: Próba dodania ściany:', newWall);
+                console.log('DEBUG: Typ:', wallType);
+                console.log('DEBUG: Walidacja:', validateDoorWindowPlacement(newWall));
+                
                 // Walidacja dla drzwi/okien - muszą być stawiane tylko na ścianach
                 if (validateDoorWindowPlacement(newWall)) {
+                    console.log('DEBUG: Walidacja passed, dodaję ścianę');
                     saveState();
                     splitWallIfIntersecting(newWall);
                     saveToLocalStorage();
                     state.startPoint = { ...pos };
                     inputLength.value = ''; inputLength.focus();
                 } else {
+                    console.log('DEBUG: Walidacja failed');
                     // Blokada rysowania drzwi/okna w pustej przestrzeni
                     resetDrawingState();
                     if (wallType !== 'wall') {

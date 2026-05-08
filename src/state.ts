@@ -328,22 +328,35 @@ function isCollinear(wall1: IWall, wall2: IWall): boolean {
 
 export function validateDoorWindowPlacement(newWall: IWall): boolean {
     // Drzwi i okna mogą być stawiane TYLKO na istniejących ścianach
-    if (newWall.type === 'wall') return true; // Ściany mogą być stawiane wszędzie
+    if (newWall.type === 'wall') {
+        console.log('DEBUG: validateDoorWindowPlacement - wall type, returning true');
+        return true; // Ściany mogą być stawiane wszędzie
+    }
+    
+    console.log('DEBUG: validateDoorWindowPlacement - checking door/window placement');
+    console.log('DEBUG: existing walls count:', state.walls.length);
     
     // Sprawdź czy nowy element przecina jakąkolwiek istniejącą ścianę
     for (const existingWall of state.walls) {
         if (existingWall.type !== 'wall') continue; // Sprawdzaj tylko przecięcia ze ścianami
+        
+        console.log('DEBUG: checking against existing wall:', existingWall);
         
         const intersection = findLineIntersection(
             newWall.x1, newWall.y1, newWall.x2, newWall.y2,
             existingWall.x1, existingWall.y1, existingWall.x2, existingWall.y2
         );
         
+        console.log('DEBUG: intersection:', intersection);
+        console.log('DEBUG: isCollinear:', isCollinear(newWall, existingWall));
+        
         if (intersection && isCollinear(newWall, existingWall)) {
+            console.log('DEBUG: found valid intersection, returning true');
             return true; // Znaleziono przecięcie ze ścianą - dozwolone
         }
     }
     
+    console.log('DEBUG: no valid intersection found, returning false');
     return false; // Brak przecięcia ze ścianą - niedozwolone dla drzwi/okien
 }
 
