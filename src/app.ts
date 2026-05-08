@@ -11,7 +11,7 @@ import {
     calculateInteraction, findObjectAtPos, updateHover,
     saveToLocalStorage, distToSegment,
     registerDrawCallback, registerSetModeCallback,
-    registerUpdateTreeCallback,
+    registerUpdateTreeCallback, splitWallIfIntersecting, validateDoorWindowPlacement,
 } from './state';
 import { draw, resizeCanvas } from './render';
 import { loadCameraDatabase } from './cameras';
@@ -693,12 +693,23 @@ canvas.addEventListener('mousedown', (e: MouseEvent) => {
             setTimeout(() => inputLength.focus(), 10);
         } else {
             if (Math.hypot(pos.x - state.startPoint!.x, pos.y - state.startPoint!.y) > 5 / state.scale) {
-                saveState();
                 const wallType = selectWallType?.value ?? 'wall';
-                state.walls.push({ x1: state.startPoint!.x, y1: state.startPoint!.y, x2: pos.x, y2: pos.y, type: wallType as IWall['type'] });
-                saveToLocalStorage();
-                state.startPoint = { ...pos };
-                inputLength.value = ''; inputLength.focus();
+                const newWall: IWall = { x1: state.startPoint!.x, y1: state.startPoint!.y, x2: pos.x, y2: pos.y, type: wallType as IWall['type'] };
+                
+                // Walidacja dla drzwi/okien - muszą być stawiane tylko na ścianach
+                if (validateDoorWindowPlacement(newWall)) {
+                    saveState();
+                    splitWallIfIntersecting(newWall);
+                    saveToLocalStorage();
+                    state.startPoint = { ...pos };
+                    inputLength.value = ''; inputLength.focus();
+                } else {
+                    // Blokada rysowania drzwi/okna w pustej przestrzeni
+                    resetDrawingState();
+                    if (wallType !== 'wall') {
+                        alert('Drzwi i okna mogą być stawiane tylko na istniejących ścianach.');
+                    }
+                }
             }
         }
     } else if (state.currentMode === 'simulate') {
@@ -1100,9 +1111,19 @@ inputLength.addEventListener('keydown', (e: KeyboardEvent) => {
             if (state.isShiftPressed) ang = Math.round(ang / (Math.PI / 12)) * (Math.PI / 12);
             const endX = state.startPoint!.x + Math.cos(ang) * newLen;
             const endY = state.startPoint!.y + Math.sin(ang) * newLen;
-            saveState();
-            state.walls.push({ x1: state.startPoint!.x, y1: state.startPoint!.y, x2: endX, y2: endY, type: selectWallType?.value as IWall['type'] ?? 'wall' });
-            saveToLocalStorage(); resetDrawingState();
+            const newWall: IWall = { x1: state.startPoint!.x, y1: state.startPoint!.y, x2: endX, y2: endY, type: selectWallType?.value as IWall['type'] ?? 'wall' };
+            
+            // Walidacja dla drzwi/okien - muszą być stawiane tylko na ścianach
+            if (validateDoorWindowPlacement(newWall)) {
+                saveState();
+                splitWallIfIntersecting(newWall);
+                saveToLocalStorage(); resetDrawingState();
+            } else {
+                // Blokada rysowania drzwi/okna w pustej przestrzeni
+                if (newWall.type !== 'wall') {
+                    alert('Drzwi i okna mogą być stawiane tylko na istniejących ścianach.');
+                }
+            }
         } else if (state.currentMode === 'none' && state.selectedObjects.length === 1 && state.selectedObjects[0].type === 'wall') {
             saveState();
             const w = state.walls[state.selectedObjects[0].index];

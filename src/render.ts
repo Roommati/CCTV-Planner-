@@ -379,7 +379,8 @@ export function draw(): void {
     }
 
     // --- MAGNES SNAPPOWANIA ---
-    if (state.snapPoint) {
+    const isConstructionTool = state.currentMode === 'draw' || state.currentMode === 'draw-obstacle' || state.currentMode === 'draw-zone';
+    if (state.snapPoint && isConstructionTool) {
         ctx.beginPath();
         ctx.arc(state.snapPoint.x, state.snapPoint.y, 6 / state.scale, 0, Math.PI * 2);
         ctx.fillStyle = '#f59e0b'; ctx.fill();

@@ -218,6 +218,140 @@ export function saveToLocalStorage(): void {
 
 // --- GEOMETRIA / FIZYKA ---
 
+export function splitWallIfIntersecting(newWall: IWall): IWall[] {
+    const result: IWall[] = [newWall];
+    const wallsToProcess = [...state.walls];
+    const wallsToRemove: number[] = [];
+    const wallsToAdd: IWall[] = [];
+
+    for (let i = 0; i < wallsToProcess.length; i++) {
+        const existingWall = wallsToProcess[i];
+        const intersection = findLineIntersection(
+            newWall.x1, newWall.y1, newWall.x2, newWall.y2,
+            existingWall.x1, existingWall.y1, existingWall.x2, existingWall.y2
+        );
+
+        if (intersection && isCollinear(newWall, existingWall)) {
+            wallsToRemove.push(i);
+            
+            // Sortuj punkty wzdłuż linii
+            const points = [
+                { x: newWall.x1, y: newWall.y1 },
+                { x: newWall.x2, y: newWall.y2 },
+                { x: existingWall.x1, y: existingWall.y1 },
+                { x: existingWall.x2, y: existingWall.y2 }
+            ];
+            
+            // Usuń duplikaty i sortuj po współrzędnej x (lub y dla linii pionowych)
+            const uniquePoints = points.filter((point, index, self) => 
+                index === self.findIndex(p => Math.abs(p.x - point.x) < 0.1 && Math.abs(p.y - point.y) < 0.1)
+            );
+            
+            uniquePoints.sort((a, b) => {
+                if (Math.abs(newWall.x2 - newWall.x1) > Math.abs(newWall.y2 - newWall.y1)) {
+                    return a.x - b.x;
+                } else {
+                    return a.y - b.y;
+                }
+            });
+
+            // Stwórz nowe segmenty między kolejnymi punktami
+            for (let j = 0; j < uniquePoints.length - 1; j++) {
+                const start = uniquePoints[j];
+                const end = uniquePoints[j + 1];
+                
+                // Sprawdź czy ten segment nie jest już w result
+                const exists = result.some(w => 
+                    (Math.abs(w.x1 - start.x) < 0.1 && Math.abs(w.y1 - start.y) < 0.1 &&
+                     Math.abs(w.x2 - end.x) < 0.1 && Math.abs(w.y2 - end.y) < 0.1) ||
+                    (Math.abs(w.x1 - end.x) < 0.1 && Math.abs(w.y1 - end.y) < 0.1 &&
+                     Math.abs(w.x2 - start.x) < 0.1 && Math.abs(w.y2 - start.y) < 0.1)
+                );
+                
+                if (!exists && (Math.abs(end.x - start.x) > 0.1 || Math.abs(end.y - start.y) > 0.1)) {
+                    // Użyj typu nowej ściany dla środkowego segmentu, typu starej dla skrajnych
+                    const isMiddleSegment = j > 0 && j < uniquePoints.length - 2;
+                    const segmentType = isMiddleSegment ? newWall.type : existingWall.type;
+                    
+                    wallsToAdd.push({
+                        x1: start.x,
+                        y1: start.y,
+                        x2: end.x,
+                        y2: end.y,
+                        type: segmentType
+                    });
+                }
+            }
+        }
+    }
+
+    // Usuń stare ściany (od końca, żeby nie zmienić indeksów)
+    wallsToRemove.sort((a, b) => b - a).forEach(index => {
+        state.walls.splice(index, 1);
+    });
+
+    // Dodaj nowe ściany
+    wallsToAdd.forEach(wall => {
+        if (!state.walls.some(existing => 
+            Math.abs(existing.x1 - wall.x1) < 0.1 && Math.abs(existing.y1 - wall.y1) < 0.1 &&
+            Math.abs(existing.x2 - wall.x2) < 0.1 && Math.abs(existing.y2 - wall.y2) < 0.1
+        )) {
+            state.walls.push(wall);
+        }
+    });
+
+    return result;
+}
+
+function findLineIntersection(
+    x1: number, y1: number, x2: number, y2: number,
+    x3: number, y3: number, x4: number, y4: number
+): { x: number; y: number } | null {
+    const denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+    if (Math.abs(denom) < 0.0001) return null;
+
+    const t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denom;
+    const u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denom;
+
+    if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
+        return {
+            x: x1 + t * (x2 - x1),
+            y: y1 + t * (y2 - y1)
+        };
+    }
+
+    return null;
+}
+
+function isCollinear(wall1: IWall, wall2: IWall): boolean {
+    // Sprawdź czy linie są współliniowe
+    const cross1 = (wall2.x1 - wall1.x1) * (wall1.y2 - wall1.y1) - (wall2.y1 - wall1.y1) * (wall1.x2 - wall1.x1);
+    const cross2 = (wall2.x2 - wall1.x1) * (wall1.y2 - wall1.y1) - (wall2.y2 - wall1.y1) * (wall1.x2 - wall1.x1);
+    
+    return Math.abs(cross1) < 0.1 && Math.abs(cross2) < 0.1;
+}
+
+export function validateDoorWindowPlacement(newWall: IWall): boolean {
+    // Drzwi i okna mogą być stawiane TYLKO na istniejących ścianach
+    if (newWall.type === 'wall') return true; // Ściany mogą być stawiane wszędzie
+    
+    // Sprawdź czy nowy element przecina jakąkolwiek istniejącą ścianę
+    for (const existingWall of state.walls) {
+        if (existingWall.type !== 'wall') continue; // Sprawdzaj tylko przecięcia ze ścianami
+        
+        const intersection = findLineIntersection(
+            newWall.x1, newWall.y1, newWall.x2, newWall.y2,
+            existingWall.x1, existingWall.y1, existingWall.x2, existingWall.y2
+        );
+        
+        if (intersection && isCollinear(newWall, existingWall)) {
+            return true; // Znaleziono przecięcie ze ścianą - dozwolone
+        }
+    }
+    
+    return false; // Brak przecięcia ze ścianą - niedozwolone dla drzwi/okien
+}
+
 export function getMousePos(e: MouseEvent): IMousePos {
     const screenX = e.offsetX;
     const screenY = e.offsetY;
