@@ -704,7 +704,14 @@ canvas.addEventListener('mousedown', (e: MouseEvent) => {
                 if (validateDoorWindowPlacement(newWall)) {
                     console.log('DEBUG: Walidacja passed, dodaję ścianę');
                     saveState();
-                    splitWallIfIntersecting(newWall);
+                    
+                    // Dla zwykłych ścian dodaj bezpośrednio, dla drzwi/okien użyj splitWallIfIntersecting
+                    if (newWall.type === 'wall') {
+                        state.walls.push(newWall);
+                    } else {
+                        splitWallIfIntersecting(newWall);
+                    }
+                    
                     saveToLocalStorage();
                     state.startPoint = { ...pos };
                     inputLength.value = ''; inputLength.focus();
@@ -1122,7 +1129,14 @@ inputLength.addEventListener('keydown', (e: KeyboardEvent) => {
             // Walidacja dla drzwi/okien - muszą być stawiane tylko na ścianach
             if (validateDoorWindowPlacement(newWall)) {
                 saveState();
-                splitWallIfIntersecting(newWall);
+                
+                // Dla zwykłych ścian dodaj bezpośrednio, dla drzwi/okien użyj splitWallIfIntersecting
+                if (newWall.type === 'wall') {
+                    state.walls.push(newWall);
+                } else {
+                    splitWallIfIntersecting(newWall);
+                }
+                
                 saveToLocalStorage(); resetDrawingState();
             } else {
                 // Blokada rysowania drzwi/okna w pustej przestrzeni
